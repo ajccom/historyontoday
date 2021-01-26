@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>历史上的今天</title>
+</head>
+<body>
+<button id="button">复制文本</button>
+<div class="text"></div>
+<style></style>
+<script>
+// query = 1.26、12.31
+var query = (location.search.match(/date=([^&]*)/) || [])[1]
+var textContent = ''
+
+function getData () {
+
+  if (!query) { return }
+
+  var url = './dist/' + query.replace(/\./g, '/') + '.json'
+  
+  fetch(url)
+  .then(function(response) {
+    return response.json();
+  })
+  .then(function(myJson) {
+    var text = getText(myJson)
+    text = text.join('')
+    document.querySelector('.text').innerHTML = text
+    textContent = text
+  });
+}
+
+function copy(text){
+  var textarea = document.createElement('textarea')
+  document.body.appendChild(textarea)
+  textarea.value = text
+  textarea.select()
+  document.execCommand("Copy")
+  
+  setTimeout(function () {
+    document.body.removeChild(textarea)
+  })
+}
+
+document.getElementById('button').addEventListener('click', function () {
+  if (!textContent) { return }
+  
+  copy(textContent)
+})
+
+// 用于解析输出数据
+// 入参是具体一天的 json 数据
+// 输出一个中文分号分隔的数组
+function getText (json) {
+  if (json && json.mainData) {
+    var result = []
+    
+    json.mainData.forEach(function (item) {
+      result.push('【' + item.d + ' ' + item.t + '】')
+    })
+    
+    return result
+  }
+}
+
+getData()
+</script>
+</body>
+</html>
